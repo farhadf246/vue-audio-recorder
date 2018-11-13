@@ -4,7 +4,7 @@
     font-family: 'Roboto', sans-serif;
     border-radius: 16px;
     background-color: #FAFAFA;
-    box-shadow: 0 4px 18px 0 rgba(0,0,0,0.17);
+    box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.17);
     position: relative;
     box-sizing: content-box;
 
@@ -101,20 +101,30 @@
         animation-iteration-count: infinite;
         animation-fill-mode: both;
 
-        &:nth-child(2) { animation-delay: .2s; }
+        &:nth-child(2) {
+          animation-delay: .2s;
+        }
 
-        &:nth-child(3) { animation-delay: .4s; }
+        &:nth-child(3) {
+          animation-delay: .4s;
+        }
 
         @keyframes blink {
-          0%    { opacity: .2; }
-          20%   { opacity: 1;  }
-          100%  { opacity: .2; }
+          0% {
+            opacity: .2;
+          }
+          20% {
+            opacity: 1;
+          }
+          100% {
+            opacity: .2;
+          }
         }
       }
     }
 
     &__text {
-      color: rgba(84,84,84,0.5);
+      color: rgba(84, 84, 84, 0.5);
       font-size: 16px;
     }
 
@@ -162,6 +172,10 @@
     }
   }
 
+  .ar-recorder__time-limit, .ar-recorder__records-limit {
+    font-family: IRANSans, iransansdn, iranyekan, roboto;
+  }
+
   @import '../scss/icons';
 </style>
 
@@ -191,9 +205,9 @@
           @click.native="stopRecorder"/>
       </div>
 
-      <div class="ar-recorder__records-limit" v-if="attempts">Attempts: {{attemptsLeft}}/{{attempts}}</div>
+      <div class="ar-recorder__records-limit" v-if="attempts">تعداد مجاز: {{attemptsLeft}}/{{attempts}}</div>
       <div class="ar-recorder__duration">{{recordedTime}}</div>
-      <div class="ar-recorder__time-limit" v-if="time">Record duration is limited: {{time}}m</div>
+      <div class="ar-recorder__time-limit" v-if="time">محدودیت زمان ضبط: {{time}} دقیقه</div>
 
       <div class="ar-records">
         <div
@@ -202,12 +216,13 @@
           :key="record.id"
           v-for="(record, idx) in recordList"
           @click="selected = record">
-            <div
-              class="ar__rm"
-              v-if="record.id === selected.id"
-              @click="removeRecord(idx)">&times;</div>
-            <div class="ar__text">Record {{idx + 1}}</div>
-            <div class="ar__text">{{record.duration}}</div>
+          <div
+            class="ar__rm"
+            v-if="record.id === selected.id"
+            @click="removeRecord(idx)">&times;
+          </div>
+          <div class="ar__text"># {{idx + 1}}</div>
+          <div class="ar__text">{{record.duration}}</div>
         </div>
       </div>
 
@@ -220,60 +235,60 @@
 
 <script>
   import AudioPlayer from './player'
-  import IconButton  from './icon-button'
-  import Recorder    from '@/lib/recorder'
-  import { convertTimeMMSS }  from '@/lib/utils'
+  import IconButton from './icon-button'
+  import Recorder from '@/lib/recorder'
+  import {convertTimeMMSS} from '@/lib/utils'
 
   export default {
     props: {
-      attempts : { type: Number                  },
-      compact  : { type: Boolean, default: false },
-      time     : { type: Number                  },
+      attempts: {type: Number},
+      compact: {type: Boolean, default: false},
+      time: {type: Number},
 
-      attemptsLimit : { type: Function },
-      micFailed     : { type: Function },
-      startRecord   : { type: Function },
-      stopRecord    : { type: Function },
+      attemptsLimit: {type: Function},
+      micFailed: {type: Function},
+      startRecord: {type: Function},
+      stopRecord: {type: Function},
 
-      failedUpload     : { type: Function },
-      headers          : { type: Object   },
-      startUpload      : { type: Function },
-      successfulUpload : { type: Function },
-      uploadUrl        : { type: String   },
+      failedUpload: {type: Function},
+      headers: {type: Object},
+      startUpload: {type: Function},
+      successfulUpload: {type: Function},
+      uploadUrl: {type: String},
 
-      successfulUploadMsg : { type: String, default: 'Upload successful' },
-      failedUploadMsg     : { type: String, default: 'Upload fail'       }
+      successfulUploadMsg: {type: String, default: 'Upload successful'},
+      failedUploadMsg: {type: String, default: 'Upload fail'}
     },
-    data () {
+    data() {
       return {
-        isUploading : false,
-        recorder    : new Recorder({
-                        afterStop: () => {
-                          this.recordList = this.recorder.recordList()
-                          if (this.stopRecord) {
-                            this.stopRecord('stop record')
-                          }
-                        },
-                        attempts: this.attempts,
-                        time: this.time
-                      }),
-        recordList      : [],
-        selected        : {},
-        uploadStatus    : null,
-        uploaderOptions : {}
+        isUploading: false,
+        recorder: new Recorder({
+          afterStop: () => {
+            this.recordList = this.recorder.recordList()
+            if (this.stopRecord) {
+              this.stopRecord('stop record')
+            }
+          },
+          attempts: this.attempts,
+          time: this.time
+        }),
+        recordList: [],
+        selected: {},
+        uploadStatus: null,
+        uploaderOptions: {}
       }
     },
     components: {
       AudioPlayer,
       IconButton
     },
-    created () {
+    created() {
       this.uploaderOptions = {
-        failedUpload     : this.failedUpload,
-        headers          : this.headers,
-        startUpload      : this.startUpload,
-        successfulUpload : this.successfulUpload,
-        uploadUrl        : this.uploadUrl
+        failedUpload: this.failedUpload,
+        headers: this.headers,
+        startUpload: this.startUpload,
+        successfulUpload: this.successfulUpload,
+        uploadUrl: this.uploadUrl
       }
 
       this.$eventBus.$on('start-upload', () => {
@@ -283,14 +298,16 @@
       this.$eventBus.$on('end-upload', (resp) => {
         this.isUploading = false
         this.uploadStatus = status
-        setTimeout(() => {this.uploadStatus = null}, 1500)
+        setTimeout(() => {
+          this.uploadStatus = null
+        }, 1500)
       })
     },
-    beforeDestroy () {
+    beforeDestroy() {
       this.stopRecorder()
     },
     methods: {
-      toggleRecorder () {
+      toggleRecorder() {
         if (this.attempts && this.recorder.records.length >= this.attempts) {
           return
         }
@@ -307,47 +324,49 @@
           }
         }
       },
-      stopRecorder () {
+      stopRecorder() {
         if (!this.isRecording) {
           return
         }
 
         this.recorder.stop()
+
+        this.selected = this.recordList[0];
       },
-      removeRecord (idx) {
+      removeRecord(idx) {
         this.recordList.splice(idx, 1)
         this.$set(this.selected, 'url', null)
         this.$eventBus.$emit('remove-record')
       }
     },
     computed: {
-      attemptsLeft () {
+      attemptsLeft() {
         return this.attempts - this.recorder.records.length
       },
-      iconButtonType () {
+      iconButtonType() {
         return this.isRecording && this.isPause ? 'mic' : this.isRecording ? 'pause' : 'mic'
       },
-      isPause () {
+      isPause() {
         return this.recorder.isPause
       },
-      isRecording () {
+      isRecording() {
         return this.recorder.isRecording
       },
-      message () {
+      message() {
         return this.uploadStatus === 'success' ? this.successfulUploadMsg : this.failedUploadMsg
       },
-      recordedTime () {
+      recordedTime() {
         if (this.time && this.recorder.duration >= this.time * 60) {
           this.stopRecorder()
         }
         return convertTimeMMSS(this.recorder.duration)
       },
-      uploadStatusClasses () {
+      uploadStatusClasses() {
         let classes = ['ar__upload-status']
         classes.push(this.uploadStatus === 'success' ? 'ar__upload-status--success' : 'ar__upload-status--fail')
         return classes.join(' ')
       },
-      volume () {
+      volume() {
         return parseFloat(this.recorder.volume)
       }
     }
